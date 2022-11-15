@@ -26,12 +26,14 @@ def manhattan_distance(point_1: list[int], point_2: list[int], distance_measure:
 
 def generate_tsp_instance(size: int, min_coordinate: int, max_coordinate: int, ) -> NDArrayInt:
 
-    number_of_vertexes: int = int(math.pow(2, size))
-    graph: NDArrayInt = np.zeros((number_of_vertexes, number_of_vertexes), dtype=float)
-    vertexes_coordinates: NDArrayInt = np.random.randint(low = min_coordinate, high = max_coordinate, size = (int(math.pow(2, size)), 2))
-    edges: NDArrayInt = list(combinations(np.arange(number_of_vertexes), 2))
+    number_of_nodes: int = int(math.pow(2, size))
+    graph: NDArrayInt = np.zeros((number_of_nodes, number_of_nodes), dtype=float)
+    nodes_coordinates: NDArrayInt = np.random.randint(low = min_coordinate, high = max_coordinate, size = (int(math.pow(2, size)), 2))
+    edges: NDArrayInt = list(combinations(np.arange(number_of_nodes), 2))
     #potencial de melhora aqui
     for edge in edges:
-        graph[edge[0], edge[1]] = euclidean_distance(vertexes_coordinates[edge[0]], vertexes_coordinates[edge[1]])
+        graph[edge[0], edge[1]] = euclidean_distance(nodes_coordinates[edge[0]], nodes_coordinates[edge[1]])
 
     return graph
+
+print(generate_tsp_instance(2, 0, 10))
