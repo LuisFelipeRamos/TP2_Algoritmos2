@@ -19,36 +19,31 @@ def bound(path: NDArrayInt, graph: NDArrayInt) -> float:
 
     for i in range(len(graph)): 
 
-        min_edge_cost: int = np.amin(graph[i], initial=np.inf)
+        min_edge_cost: int = int(np.amin(graph[i], initial=np.inf))
         min_edge_cost_adjacent_node, = np.where(graph[i] == min_edge_cost)
-        second_min_edge_cost: int = np.amin(graph[i], where = graph[i] > min_edge_cost, initial=np.inf)
+        second_min_edge_cost: int = int(np.amin(graph[i], where = graph[i] > min_edge_cost, initial=np.inf))
         second_min_edge_cost_adjacent_node, = np.where(graph[i] == second_min_edge_cost)
         total += min_edge_cost + second_min_edge_cost
         counted_edges[i][0] = min_edge_cost_adjacent_node
         counted_edges[i][1] = second_min_edge_cost_adjacent_node
 
-    print(counted_edges)
+    # problema auqi, no already counted, tenho q checar pra aresta indo e voltando
+    for i in range(len(path) - 1):
+        
+        edge_already_counted_1: bool = counted_edges[path[i]][0] == path[i + 1] or counted_edges[path[i]][1] == path[i + 1]
+        edge_already_counted_2: bool = counted_edges[path[i + 1]][0] == path[i] or counted_edges[path[i + 1]][1] == path[i]
+        
+        if not edge_already_counted_1:
+            total -= graph[path[i]][int(counted_edges[path[i]][1])]
+            counted_edges[path[i]][1] = path[i + 1]
+            total += graph[path[i]][path[i + 1]]
+        
+        if not edge_already_counted_2:
+            total -= graph[path[i + 1]][int(counted_edges[path[i + 1]][1])]
+            counted_edges[path[i + 1]][1] = path[i]
+            total += graph[path[i + 1]][path[i]]
 
-    """ if count[i] == 2:
-        continue     
-    elif count[i] == 1: # ta errado
-        adjacencies = np.union1d(graph[i], graph[:, i])
-        min1 = np.amin(adjacencies, where = adjacencies != 0, initial = adjacencies[-1])
-        total += min1
-        count[i] += 1
-    elif count[i] == 0:
-        adjacencies = np.union1d(graph[i], graph[:, i])
-        min1 = np.amin(adjacencies, where = adjacencies != 0, initial = adjacencies[-1])
-        min2 = np.amin(adjacencies, where = adjacencies > min1, initial = adjacencies[-1])
-        total += min1 + min2
-        count[i] += 2
-
-for i in range(len(path) - 1):
-total += 2 * graph[path[i], path[i + 1]]
-counted_edges[path[i]][0] = path[i+1]
-counted_edges[path[i + 1][0]] += 1
-return math.ceil(total/2) """
-    return total/2
+    return math.ceil(total/2)
 
 def branch_and_bound_tsp(graph: NDArrayInt) -> NDArrayInt:
     #OBS: VAMOS ASSUMIR QUE 1 VEM SEMPRE ANTES DE 2
@@ -90,8 +85,13 @@ instance = np.array([   [np.inf, 3, 1, 5, 8],
 #instance = generate_tsp_instance(5, 0, 10)
 
 s = time.time()
-#path = branch_and_bound_tsp(instance)
-#print([chr(x+65) for x in path])
+path = branch_and_bound_tsp(instance)
+print([chr(x+65) for x in path])
 e = time.time()
 print(f"Tempo: {e-s}")
-print(bound([], instance))
+
+#todo
+# aind ata errado o bound
+# arrumar heapq pra ordenar pelo parametro certo
+# testese mais testes
+# otimizar
