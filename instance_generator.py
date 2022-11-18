@@ -25,10 +25,12 @@ def manhattan_distance(point_1: list[int], point_2: list[int], distance_measure:
 def generate_tsp_instance(size: int, min_coordinate: int, max_coordinate: int, ) -> NDArrayInt:
 
     number_of_nodes: int = int(math.pow(2, size))
-    graph: NDArrayInt = np.zeros((number_of_nodes, number_of_nodes), dtype=float)
+    graph: NDArrayInt = np.ones((number_of_nodes, number_of_nodes), dtype=float)*np.inf
     nodes_coordinates: NDArrayInt = np.random.randint(low = min_coordinate, high = max_coordinate, size = (int(math.pow(2, size)), 2))
-    edges: NDArrayInt = list(combinations(np.arange(number_of_nodes), 2))
     #potencial de melhora aqui
-    for edge in edges:
-        graph[edge[0], edge[1]] = euclidean_distance(nodes_coordinates[edge[0]], nodes_coordinates[edge[1]])
+    for i in range(number_of_nodes):
+        for j in range(i+1, number_of_nodes):
+            distance: float = euclidean_distance(nodes_coordinates[i], nodes_coordinates[j])
+            graph[i, j] = distance
+            graph[j, i] = distance
     return graph
