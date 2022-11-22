@@ -39,7 +39,6 @@ def generate_tsp_instance(size: int, min_coordinate: int, max_coordinate: int, d
                 graph[i, j] = distance
                 graph[j, i] = distance
 
-
     else:
         for i in range(number_of_nodes):
             for j in range(i+1, number_of_nodes):

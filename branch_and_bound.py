@@ -61,13 +61,13 @@ def branch_and_bound_tsp(graph: NDArrayInt) -> NDArrayInt:
     graph_initial_bound, graph_initial_bound_counted_edges = graph_bound(graph)
 
     number_of_nodes: int = len(graph)
-    root: tuple(int, int, list[int], bool) = graph_initial_bound, 0, [0], False
+    root: tuple(np.int_, np.int_, NDArrayInt, bool) = graph_initial_bound, 0, [0], False
     heap: heapq = [root]
     heapq.heapify(heap)
     best: npt.float_ = float("inf")
     solution: NDArrayInt = np.array([])
     while (len(heap) > 0):
-    
+        print(len(heap))
         node = heapq.heappop(heap)
         #print([chr(x+65) for x in node[2]])
         #print(f"estimativa atual: {node[0]}")
@@ -76,9 +76,7 @@ def branch_and_bound_tsp(graph: NDArrayInt) -> NDArrayInt:
                 best = node[1]
                 solution = node[2]
         elif node[0] < best:
-            if len(node[2]) == number_of_nodes - 1:
-                pass #checar aq pra diminuir comparacoes
-            if len(node[2]) < number_of_nodes - 1:
+            if len(node[2]) < number_of_nodes:
                 for k in range(1, number_of_nodes):
                     if not node[3] and k == 2:
                         continue
@@ -107,7 +105,6 @@ e = time.time()
 print(f"Tempo: {e-s}")
 
 #todo
-# aind ata errado o bound
-# arrumar heapq pra ordenar pelo parametro certo
-# testese  mais testes
+# otimizar bound
+# arrumar heapq pra ordenar pelo parametro certo (primeiro estimativa e se empatar pelo index do no)
 # otimizar
