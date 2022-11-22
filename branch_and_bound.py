@@ -55,12 +55,13 @@ def branch_and_bound_tsp(graph: NDArrayInt) -> NDArrayInt:
     #node[0] = estimaitva da subarvore, ex: 14
     #node[1] = custo total ate agora
     #node[2] = lista->caminho seguindo , ex: 0,2,4 ---> len(caminho) == number_of_nodes- 2 indica caminho encontrado
+    #node[3] = 1 esta antes de 2(false por vacuidade, true cc)
     #NOVE LEVEL = LEN(NODE[2])
     
     graph_initial_bound, graph_initial_bound_counted_edges = graph_bound(graph)
 
     number_of_nodes: int = len(graph)
-    root: tuple(int, int, list[int]) = graph_initial_bound, 0, [0]
+    root: tuple(int, int, list[int], bool) = graph_initial_bound, 0, [0], False
     heap: heapq = [root]
     heapq.heapify(heap)
     best: npt.float_ = float("inf")
@@ -70,23 +71,24 @@ def branch_and_bound_tsp(graph: NDArrayInt) -> NDArrayInt:
         node = heapq.heappop(heap)
         #print([chr(x+65) for x in node[2]])
         #print(f"estimativa atual: {node[0]}")
-       
         if len(node[2]) > number_of_nodes:
             if best > node[1]:
                 best = node[1]
                 solution = node[2]
         elif node[0] < best:
-            if len(node[2]) < number_of_nodes:
+            if len(node[2]) == number_of_nodes - 1:
+                pass #checar aq pra diminuir comparacoes
+            if len(node[2]) < number_of_nodes - 1:
                 for k in range(1, number_of_nodes):
-                    if 1 not in node[2] and k == 2:
+                    if not node[3] and k == 2:
                         continue
                     new_bound: np.float_ = bound(node[2] + [k], graph, graph_initial_bound, graph_initial_bound_counted_edges)
                     if k not in node[2] and new_bound < best:
-                        heapq.heappush(heap, (new_bound, node[1] + graph[node[2][-1]][k], node[2] + [k])) 
+                        heapq.heappush(heap, (new_bound, node[1] + graph[node[2][-1]][k], node[2] + [k], node[3] or k == 1)) 
                         
             new_bound: np.float_ = bound(node[2] + [0], graph, graph_initial_bound, graph_initial_bound_counted_edges)
             if new_bound < best and len(node[2]) == number_of_nodes:
-                heapq.heappush(heap, (new_bound, node[1] + graph[node[2][-1]][0], node[2] + [0]))
+                heapq.heappush(heap, (new_bound, node[1] + graph[node[2][-1]][0], node[2] + [0], True))
                 
     return solution
 
@@ -96,7 +98,7 @@ instance = np.array([   [np.inf, 3, 1, 5, 8],
                         [5, 7, 4, np.inf, 3], 
                         [8, 9, 2, 3, np.inf]])
 
-#instance = generate_tsp_instance(3, 0, 10)
+instance = generate_tsp_instance(4, 0, 10)
 
 s = time.time()
 path = branch_and_bound_tsp(instance)
@@ -107,8 +109,5 @@ print(f"Tempo: {e-s}")
 #todo
 # aind ata errado o bound
 # arrumar heapq pra ordenar pelo parametro certo
-# testese mais testes
+# testese  mais testes
 # otimizar
-
-
-
