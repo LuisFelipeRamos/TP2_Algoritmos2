@@ -1,4 +1,5 @@
 networkx
+igraph
 numpy
 matplotlib
 cProfile

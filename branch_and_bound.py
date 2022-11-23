@@ -66,14 +66,25 @@ def bound(prev_bound: np.float_, prev_node: np.int_, new_node: np.int_, counted_
     total: np.float_ = prev_bound * 2
     new_edge_value: np.float_ = graph[prev_node, new_node]
     total += new_edge_value * 2
-    
+
     if counted_edges[prev_node, 0] == new_node or counted_edges[prev_node, 1] == new_node:
         total -= new_edge_value * 2
     else:
-        total -= graph[counted_edges[prev_node, 0], counted_edges[new_node, 1]]
-        total -= graph[counted_edges[new_node, 1], counted_edges[prev_node, 0]]
-        counted_edges[prev_node, 0] = new_node
-        counted_edges[new_node, 1] = prev_node
+        if prev_node == 0:
+            total -= graph[prev_node, counted_edges[prev_node, 1]]
+            total -= graph[new_node, counted_edges[new_node, 1]]
+            counted_edges[prev_node, 1] = new_node
+            counted_edges[new_node, 1] = prev_node
+        elif new_node == 0:
+            total -= graph[prev_node, counted_edges[prev_node, 0]]
+            total -= graph[new_node, counted_edges[new_node, 0]]
+            counted_edges[prev_node, 0] = new_node
+            counted_edges[new_node, 0] = prev_node
+        else:
+            total -= graph[prev_node, counted_edges[prev_node, 0]]
+            total -= graph[new_node, counted_edges[new_node, 1]]
+            counted_edges[prev_node, 0] = new_node
+            counted_edges[new_node, 1] = prev_node
 
     return total/2, counted_edges
 
@@ -81,7 +92,7 @@ def branch_and_bound_tsp(graph: NDArrayFloat) -> NDArrayInt:
     
     graph_initial_bound, counted_edges = graph_bound(graph)
 
-    number_of_nodes: int = len(graph)
+    number_of_nodes: np.int_ = len(graph)
     root: Node = Node(graph_initial_bound, 0, [0], counted_edges, len(graph))
     heap: heapq = [root]
     heapq.heapify(heap)
@@ -90,8 +101,8 @@ def branch_and_bound_tsp(graph: NDArrayFloat) -> NDArrayInt:
     while (len(heap) > 0):
         node = heapq.heappop(heap)
         counted_edges: NDArrayInt = node.counted_edges
-        """ print([chr(x+65) for x in node.path])
-        print(node.bound) """
+        print([chr(x+65) for x in node.path])
+        print(node.bound)
         if node.level > number_of_nodes:
             if best > node.cost:
                 best = node.cost
@@ -107,7 +118,7 @@ def branch_and_bound_tsp(graph: NDArrayFloat) -> NDArrayInt:
                             heapq.heappush(heap, Node(new_bound, node.cost + graph[node.path[-1]][k], np.append(node.path, k), new_counted_edges, len(graph))) 
             if node.path[-1] != 0:
                 new_bound, new_counted_edges = bound(node.bound, node.path[-1], 0, counted_edges, graph)
-                if new_bound < best and len(node.path) == number_of_nodes:
+                if new_bound < best and node.level == number_of_nodes:
                     heapq.heappush(heap, Node(new_bound, node.cost + graph[node.path[-1]][0], np.append(node.path, 0), new_counted_edges, len(graph)))
                     
     return solution
@@ -120,11 +131,11 @@ def teste():
                             [5, 7, 4, np.inf, 3], 
                             [8, 9, 2, 3, np.inf]])
 
-    instance = generate_tsp_instance(4, 0, 10)
+    #instance = generate_tsp_instance(3, 10)
 
     path = branch_and_bound_tsp(instance)
     print([chr(x+65) for x in path])
     return path
-cProfile.run("teste()")
+#cProfile.run("teste()")
 
 
