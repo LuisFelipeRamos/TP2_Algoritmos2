@@ -101,8 +101,8 @@ def branch_and_bound_tsp(graph: NDArrayFloat) -> NDArrayInt:
     while (len(heap) > 0):
         node = heapq.heappop(heap)
         counted_edges: NDArrayInt = node.counted_edges
-        print([chr(x+65) for x in node.path])
-        print(node.bound)
+        """ print([chr(x+65) for x in node.path])
+        print(node.bound) """
         if node.level > number_of_nodes:
             if best > node.cost:
                 best = node.cost
@@ -131,11 +131,10 @@ def teste():
                             [5, 7, 4, np.inf, 3], 
                             [8, 9, 2, 3, np.inf]])
 
-    #instance = generate_tsp_instance(3, 10)
+    instance = generate_tsp_instance(3, 10)
 
     path = branch_and_bound_tsp(instance)
     print([chr(x+65) for x in path])
     return path
-#cProfile.run("teste()")
 
 
