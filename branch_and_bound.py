@@ -1,110 +1,130 @@
+from __future__ import annotations
+
 import heapq
 import time
-
 import numpy as np
 import numpy.typing as npt
-import scipy.sparse.csgraph
-from numba import njit
+import networkx as nx
 import math
+import cProfile
 
 from instance_generator import generate_tsp_instance
 
 NDArrayInt = npt.NDArray[np.int_]
+NDArrayFloat = npt.NDArray[np.float_]
 
-def graph_bound(graph: NDArrayInt) -> tuple:
+class Node:
 
-    total: int = 0
-
-    # Criação de um array auxiliar para armazenar quais arestas foram checadas
-    counted_edges: NDArrayInt = np.zeros((len(graph), 2))
-
-    # preciso checar ainda o segundo min Posso ter edges minimas de vlaores erradas, nao considero isso
-    for i in range(len(graph)): 
-
-        min_edge_cost: int = np.amin(graph[i], initial=np.inf)
-        min_edge_cost_adjacent_node, = np.where(graph[i] == min_edge_cost)
-        second_min_edge_cost: int = np.amin(graph[i], where = graph[i] > min_edge_cost, initial=np.inf)
-        second_min_edge_cost_adjacent_node, = np.where(graph[i] == second_min_edge_cost)
-        total += min_edge_cost + second_min_edge_cost
-        counted_edges[i][0] = min_edge_cost_adjacent_node[0]
-        counted_edges[i][1] = second_min_edge_cost_adjacent_node[0]
+    def __init__(self, bound: np.float_, cost: np.float_, path: NDArrayInt, counted_edges: NDArrayInt, graph_size: np.int_):
+        self.bound: np.float_ = bound
+        self.cost: np.float_ = cost
+        self.path: NDArrayInt = path
+        self.level: np.int_ = len(path)
+        self.counted_edges: NDArrayInt = counted_edges
+        self.visited: NDArrayInt = np.zeros(graph_size)
+        self.visited[path] = 1
+        self.oneIsVisited: bool = self.visited[1]
     
+    def __lt__(self, other: Node) -> bool:
+        if self.bound != other.bound:
+            return self.bound < other.bound
+        return self.cost < other.cost
+
+
+
+def graph_bound(graph: NDArrayInt) -> np.float_:
+    total: int = 0
+    counted_edges: NDArrayInt = np.zeros((len(graph), 2), dtype = np.int_)
+    for i in range(len(graph)):
+        a, b = np.partition(graph[i], 1)[0:2]
+        counted_edges[i, 0] = np.where(graph[i] == a)[0][0]
+        counted_edges[i, 1] = np.where(graph[i] == b)[0][0]
+        total += a + b
     return total/2, counted_edges
 
-def bound(path: NDArrayInt, graph: NDArrayInt, total: float, counted_edges: NDArrayInt) -> float:
+def bound_old(prev_bound: np.float_, prev_node: np.int_, new_node: np.int_, graph: NDArrayFloat) -> np.float_:
 
-    total: int = 2 * total
+    total: np.float_ = prev_bound * 2
+    total += graph[prev_node, new_node] * 2
 
-    for i in range(len(path) - 1):
-        
-        edge_already_counted_1: bool = counted_edges[path[i]][0] == path[i + 1] or counted_edges[path[i]][1] == path[i + 1]
-        edge_already_counted_2: bool = counted_edges[path[i + 1]][0] == path[i] or counted_edges[path[i + 1]][1] == path[i]
-        
-        if not edge_already_counted_1:
-            total -= graph[path[i]][int(counted_edges[path[i]][1])]
-            total += graph[path[i]][path[i + 1]]
-        
-        if not edge_already_counted_2:
-            total -= graph[path[i + 1]][int(counted_edges[path[i + 1]][1])]
-            total += graph[path[i + 1]][path[i]]
-
+    a, b = np.partition(graph[prev_node], 1)[0:2]
+    if graph[prev_node, new_node] == a:
+        total -= a
+    else:
+        total -= b
+    
+    a, b = np.partition(graph[new_node], 1)[0:2]
+    if graph[prev_node, new_node] == a:
+        total -= a
+    else:
+        total -= b
     return total/2
 
-def branch_and_bound_tsp(graph: NDArrayInt) -> NDArrayInt:
-    #OBS: VAMOS ASSUMIR QUE 1 VEM SEMPRE ANTES DE 2
-    #node[0] = estimaitva da subarvore, ex: 14
-    #node[1] = custo total ate agora
-    #node[2] = lista->caminho seguindo , ex: 0,2,4 ---> len(caminho) == number_of_nodes- 2 indica caminho encontrado
-    #node[3] = 1 esta antes de 2(false por vacuidade, true cc)
-    #NOVE LEVEL = LEN(NODE[2])
+# devo conseguir fzr isso em tempo constante
+def bound(prev_bound: np.float_, prev_node: np.int_, new_node: np.int_, counted_edges: NDArrayInt, graph: NDArrayFloat) -> np.float_:
+
+    total: np.float_ = prev_bound * 2
+    new_edge_value: np.float_ = graph[prev_node, new_node]
+    total += new_edge_value * 2
     
-    graph_initial_bound, graph_initial_bound_counted_edges = graph_bound(graph)
+    if counted_edges[prev_node, 0] == new_node or counted_edges[prev_node, 1] == new_node:
+        total -= new_edge_value * 2
+    else:
+        total -= graph[counted_edges[prev_node, 0], counted_edges[new_node, 1]]
+        total -= graph[counted_edges[new_node, 1], counted_edges[prev_node, 0]]
+        counted_edges[prev_node, 0] = new_node
+        counted_edges[new_node, 1] = prev_node
+
+    return total/2, counted_edges
+
+def branch_and_bound_tsp(graph: NDArrayFloat) -> NDArrayInt:
+    
+    graph_initial_bound, counted_edges = graph_bound(graph)
 
     number_of_nodes: int = len(graph)
-    root: tuple(np.int_, np.int_, NDArrayInt, bool) = graph_initial_bound, 0, [0], False
+    root: Node = Node(graph_initial_bound, 0, [0], counted_edges, len(graph))
     heap: heapq = [root]
     heapq.heapify(heap)
     best: npt.float_ = float("inf")
     solution: NDArrayInt = np.array([])
     while (len(heap) > 0):
-        print(len(heap))
         node = heapq.heappop(heap)
-        #print([chr(x+65) for x in node[2]])
-        #print(f"estimativa atual: {node[0]}")
-        if len(node[2]) > number_of_nodes:
-            if best > node[1]:
-                best = node[1]
-                solution = node[2]
-        elif node[0] < best:
-            if len(node[2]) < number_of_nodes:
+        counted_edges: NDArrayInt = node.counted_edges
+        """ print([chr(x+65) for x in node.path])
+        print(node.bound) """
+        if node.level > number_of_nodes:
+            if best > node.cost:
+                best = node.cost
+                solution = node.path
+        elif node.bound < best:
+            if node.level < number_of_nodes:
                 for k in range(1, number_of_nodes):
-                    if not node[3] and k == 2:
+                    if not node.oneIsVisited and k == 2:
                         continue
-                    new_bound: np.float_ = bound(node[2] + [k], graph, graph_initial_bound, graph_initial_bound_counted_edges)
-                    if k not in node[2] and new_bound < best:
-                        heapq.heappush(heap, (new_bound, node[1] + graph[node[2][-1]][k], node[2] + [k], node[3] or k == 1)) 
-                        
-            new_bound: np.float_ = bound(node[2] + [0], graph, graph_initial_bound, graph_initial_bound_counted_edges)
-            if new_bound < best and len(node[2]) == number_of_nodes:
-                heapq.heappush(heap, (new_bound, node[1] + graph[node[2][-1]][0], node[2] + [0], True))
-                
+                    if node.path[-1] != k:
+                        new_bound, new_counted_edges = bound(node.bound, node.path[-1], k, counted_edges, graph)
+                        if not node.visited[k] and new_bound < best:
+                            heapq.heappush(heap, Node(new_bound, node.cost + graph[node.path[-1]][k], np.append(node.path, k), new_counted_edges, len(graph))) 
+            if node.path[-1] != 0:
+                new_bound, new_counted_edges = bound(node.bound, node.path[-1], 0, counted_edges, graph)
+                if new_bound < best and len(node.path) == number_of_nodes:
+                    heapq.heappush(heap, Node(new_bound, node.cost + graph[node.path[-1]][0], np.append(node.path, 0), new_counted_edges, len(graph)))
+                    
     return solution
 
-instance = np.array([   [np.inf, 3, 1, 5, 8], 
-                        [3, np.inf, 6, 7, 9], 
-                        [1, 6, np.inf, 4, 2], 
-                        [5, 7, 4, np.inf, 3], 
-                        [8, 9, 2, 3, np.inf]])
 
-instance = generate_tsp_instance(4, 0, 10)
+def teste():
+    instance = np.array([   [np.inf, 3, 1, 5, 8], 
+                            [3, np.inf, 6, 7, 9], 
+                            [1, 6, np.inf, 4, 2], 
+                            [5, 7, 4, np.inf, 3], 
+                            [8, 9, 2, 3, np.inf]])
 
-s = time.time()
-path = branch_and_bound_tsp(instance)
-print([chr(x+65) for x in path])
-e = time.time()
-print(f"Tempo: {e-s}")
+    instance = generate_tsp_instance(4, 0, 10)
 
-#todo
-# otimizar bound
-# arrumar heapq pra ordenar pelo parametro certo (primeiro estimativa e se empatar pelo index do no)
-# otimizar
+    path = branch_and_bound_tsp(instance)
+    print([chr(x+65) for x in path])
+    return path
+cProfile.run("teste()")
+
+
