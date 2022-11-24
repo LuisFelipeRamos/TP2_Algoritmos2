@@ -12,18 +12,23 @@ from instance_generator import generate_tsp_instance
 NDArrayInt = npt.NDArray[np.int_]
 NDArrayFloat = npt.NDArray[np.float_]
 
-instance = np.array([[np.inf, 3, 1, 5, 8], 
-                    [3, np.inf, 6, 7, 9], 
-                    [1, 6, np.inf, 4, 2], 
-                    [5, 7, 4, np.inf, 3], 
-                    [8, 9, 2, 3, np.inf]])
-
-#instance = generate_tsp_instance(10, 10)
-
 def twice_around_the_tree(graph: NDArrayInt):
 
-    graph = nx.from_numpy_matrix(graph)
-    mst = nx.minimum_spanning_tree(graph)
+    graph_nx = nx.from_numpy_array(graph)
+    mst = nx.minimum_spanning_tree(graph_nx)
     hamiltonian_cycle = list(nx.dfs_preorder_nodes(mst, source = 0))
     return hamiltonian_cycle + [0]
 
+def get_path_cost(path: NDArrayInt, graph: NDArrayFloat) -> np.float_:
+    cost: np.float_ = 0
+    for i in range(len(path) - 1):
+        cost += graph[path[i], path[i + 1]]
+    return cost
+
+def get_mst_cost(graph: NDArrayFloat) -> np.float_:
+    cost: np.float_ = 0
+    graph_nx = nx.from_numpy_array(graph)
+    mst = nx.minimum_spanning_tree(graph_nx)
+    for edge in mst.edges:
+        cost += graph[edge]
+    return cost
