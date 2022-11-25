@@ -20,15 +20,17 @@ graph = np.array([[np.inf, 3, 1, 5, 8],
 #instance = generate_tsp_instance(10, 10)
 import matplotlib.pyplot as plt
 def christofides(graph: NDArrayInt, src: np.int_ = 0):
-    graph = nx.from_numpy_matrix(graph)
-    mst = nx.minimum_spanning_tree(graph)
+    graph_nx = nx.from_numpy_matrix(graph)
+    mst = nx.minimum_spanning_tree(graph_nx)
     odd_degre_nodes: NDArrayInt = [] 
     for node in mst.nodes:
         if mst.degree[node] % 2 == 1:
             odd_degre_nodes.append(node)
-    induced_subgraph = mst.subgraph(odd_degre_nodes)
-    #calcular edmond blossom do grafo induzido
-    #dfs
-    #dale
-    
-christofides(graph)
+    induced_subgraph = graph_nx.subgraph(odd_degre_nodes)
+    min_weight_perfect_matching = nx.min_weight_matching(induced_subgraph)
+    eulerian_graph = mst
+    for edge in min_weight_perfect_matching:
+        eulerian_graph.add_edge(*edge, weight = graph[edge[0], edge[1]])
+    hamiltonian_cycle = list(nx.dfs_preorder_nodes(eulerian_graph, source = src))
+    hamiltonian_cycle.append(src)
+    return hamiltonian_cycle
