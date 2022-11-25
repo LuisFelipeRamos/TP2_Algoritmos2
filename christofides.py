@@ -28,9 +28,9 @@ def christofides(graph: NDArrayInt, src: np.int_ = 0):
             odd_degre_nodes.append(node)
     induced_subgraph = graph_nx.subgraph(odd_degre_nodes)
     min_weight_perfect_matching = nx.min_weight_matching(induced_subgraph)
-    eulerian_graph = mst
+    eulerian_multigraph = nx.MultiGraph(mst)
     for edge in min_weight_perfect_matching:
-        eulerian_graph.add_edge(*edge, weight = graph[edge[0], edge[1]])
-    hamiltonian_cycle = list(nx.dfs_preorder_nodes(eulerian_graph, source = src))
+        eulerian_multigraph.add_edge(*edge, weight = graph[edge[0], edge[1]])
+    hamiltonian_cycle = list(nx.dfs_preorder_nodes(eulerian_multigraph, source = src))
     hamiltonian_cycle.append(src)
     return hamiltonian_cycle
