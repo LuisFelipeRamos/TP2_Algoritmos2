@@ -1,23 +1,16 @@
-
-import time
 import numpy as np
 import numpy.typing as npt
 import networkx as nx
-import igraph as ig
-import math
-import cProfile
-
-from instance_generator import generate_tsp_instance
 
 NDArrayInt = npt.NDArray[np.int_]
 NDArrayFloat = npt.NDArray[np.float_]
 
-def twice_around_the_tree(graph: NDArrayInt):
+def twice_around_the_tree(graph: NDArrayInt, src: np.int_ = 0):
 
     graph_nx = nx.from_numpy_array(graph)
     mst = nx.minimum_spanning_tree(graph_nx)
-    hamiltonian_cycle = list(nx.dfs_preorder_nodes(mst, source = 0))
-    return hamiltonian_cycle + [0]
+    hamiltonian_cycle = list(nx.dfs_preorder_nodes(mst, source = src))
+    return hamiltonian_cycle + [src]
 
 def get_path_cost(path: NDArrayInt, graph: NDArrayFloat) -> np.float_:
     cost: np.float_ = 0
