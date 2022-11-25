@@ -1,6 +1,0 @@
-networkx
-igraph
-numpy
-pandas
-matplotlib
-cProfile
