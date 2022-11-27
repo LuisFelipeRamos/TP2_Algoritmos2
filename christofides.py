@@ -11,14 +11,16 @@ from instance_generator import generate_tsp_instance
 NDArrayInt = npt.NDArray[np.int_]
 NDArrayFloat = npt.NDArray[np.float_]
 
-graph = np.array([[np.inf, 3, 1, 5, 8], 
-                    [3, np.inf, 6, 7, 9], 
-                    [1, 6, np.inf, 4, 2], 
-                    [5, 7, 4, np.inf, 3], 
-                    [8, 9, 2, 3, np.inf]])
+graph = np.array([[0, 3, 1, 5, 8], 
+                    [3, 0, 6, 7, 9], 
+                    [1, 6, 0, 4, 2], 
+                    [5, 7, 4, 0, 3], 
+                    [8, 9, 2, 3, 0]])
 
-graph = generate_tsp_instance(9, 10)
+graph = generate_tsp_instance(2, 100)
+
 import matplotlib.pyplot as plt
+
 def christofides(graph: NDArrayInt, src: np.int_ = 0):
     graph_nx = nx.from_numpy_matrix(graph)
     mst = nx.minimum_spanning_tree(graph_nx)
@@ -27,12 +29,21 @@ def christofides(graph: NDArrayInt, src: np.int_ = 0):
         if mst.degree[node] % 2 == 1:
             odd_degre_nodes.append(node)
     induced_subgraph = graph_nx.subgraph(odd_degre_nodes)
-    min_weight_perfect_matching = nx.min_weight_matching(induced_subgraph)
+    min_weight_perfect_matching = nx.min_weight_matching(induced_subgraph, maxcardinality = True)
+
+    #multigrafo criado de duas formas, checar qual melhor
     eulerian_multigraph = nx.MultiGraph(mst)
     
-    for edge in min_weight_perfect_matching:
-        eulerian_multigraph.add_edge(*edge)
-    hamiltonian_cycle = list(nx.dfs_preorder_nodes(eulerian_multigraph, source = src))
+    #eulerian_multigraph = nxMultiGraph()
+    #eulerian_multigraph.add_edges_from(mst.edges)
+    
+    eulerian_multigraph.add_edges_from(min_weight_perfect_matching)
+
+    eulerian_circuit = list(nx.eulerian_circuit(eulerian_multigraph))
+    hamiltonian_cycle = []
+    for u, _ in eulerian_circuit:
+        if u in hamiltonian_cycle:
+            continue
+        hamiltonian_cycle.append(u)
+
     return hamiltonian_cycle + [src]
-
-

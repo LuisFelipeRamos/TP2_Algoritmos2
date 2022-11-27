@@ -30,35 +30,23 @@ class Node:
             return self.bound < other.bound
         return self.cost < other.cost
 
-
-
 def graph_bound(graph: NDArrayInt) -> np.float_:
     total: int = 0
     counted_edges: NDArrayInt = np.zeros((len(graph), 2), dtype = np.int_)
     for i in range(len(graph)):
-        a, b = np.partition(graph[i], 1)[0:2]
+        #pega dois menors elementos (pula 0 na primeira)
+        a, b = np.partition(graph[i], 2)[1:3]
+
+        # menor aresta em i,0. Segunda menor, se igual a menor é outr no se nao pega novo no
         counted_edges[i, 0] = np.where(graph[i] == a)[0][0]
-        counted_edges[i, 1] = np.where(graph[i] == b)[0][0]
+        second_min_possible_indexes = np.where(graph[i] == b)[0]
+        if second_min_possible_indexes[0] != counted_edges[i, 0]:
+            counted_edges[i, 1] = second_min_possible_indexes[0]
+        else:
+            counted_edges[i, 1] = second_min_possible_indexes[1]
         total += a + b
+
     return total/2, counted_edges
-
-def bound_old(prev_bound: np.float_, prev_node: np.int_, new_node: np.int_, graph: NDArrayFloat) -> np.float_:
-
-    total: np.float_ = prev_bound * 2
-    total += graph[prev_node, new_node] * 2
-
-    a, b = np.partition(graph[prev_node], 1)[0:2]
-    if graph[prev_node, new_node] == a:
-        total -= a
-    else:
-        total -= b
-    
-    a, b = np.partition(graph[new_node], 1)[0:2]
-    if graph[prev_node, new_node] == a:
-        total -= a
-    else:
-        total -= b
-    return total/2
 
 # devo conseguir fzr isso em tempo constante
 def bound(prev_bound: np.float_, prev_node: np.int_, new_node: np.int_, counted_edges: NDArrayInt, graph: NDArrayFloat) -> np.float_:
@@ -68,8 +56,10 @@ def bound(prev_bound: np.float_, prev_node: np.int_, new_node: np.int_, counted_
     total += new_edge_value * 2
 
     if counted_edges[prev_node, 0] == new_node or counted_edges[prev_node, 1] == new_node:
-        total -= new_edge_value * 2
-    else:
+        total -= new_edge_value
+    if counted_edges[new_node, 0] == prev_node or counted_edges[new_node, 1] == prev_node:
+        total -= new_edge_value
+    if total != prev_bound:
         if prev_node == 0:
             total -= graph[prev_node, counted_edges[prev_node, 1]]
             total -= graph[new_node, counted_edges[new_node, 1]]
@@ -125,16 +115,14 @@ def branch_and_bound_tsp(graph: NDArrayFloat) -> NDArrayInt:
 
 
 def teste():
-    instance = np.array([   [np.inf, 3, 1, 5, 8], 
-                            [3, np.inf, 6, 7, 9], 
-                            [1, 6, np.inf, 4, 2], 
-                            [5, 7, 4, np.inf, 3], 
-                            [8, 9, 2, 3, np.inf]])
+    instance = np.array([   [0, 3, 1, 5, 8], 
+                            [3,0, 6, 7, 9], 
+                            [1, 6, 0, 4, 2], 
+                            [5, 7, 4, 0, 3], 
+                            [8, 9, 2, 3, 0]])
 
-    instance = generate_tsp_instance(3, 10)
+    #instance = generate_tsp_instance(3, 10, dist = "manhattan")
 
-    path = branch_and_bound_tsp(instance)
-    print([chr(x+65) for x in path])
-    return path
-
+    print(graph_bound(instance))
+teste()
 

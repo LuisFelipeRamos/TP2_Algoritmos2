@@ -24,7 +24,7 @@ def manhattan_distance(point_1: list[int], point_2: list[int]) -> int:
 def generate_tsp_instance(size: int, max_coordinate: int, dist: str = "euclidean") -> NDArrayInt:
 
     number_of_nodes: int = int(math.pow(2, size))
-    graph: NDArrayInt = np.ones((number_of_nodes, number_of_nodes), dtype=float)*np.inf
+    graph: NDArrayInt = np.zeros((number_of_nodes, number_of_nodes), dtype=float)
     rng = default_rng() # gerar sem replacement
     # os pontos possuem coordenadas entre 0 e numeros de nos*4
     nodes_coordinates: NDArrayInt = rng.choice(number_of_nodes*4, size=(number_of_nodes, 2), replace=False)
