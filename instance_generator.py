@@ -27,7 +27,7 @@ def generate_tsp_instance(size: int, max_coordinate: int, dist: str = "euclidean
     graph: NDArrayInt = np.zeros((number_of_nodes, number_of_nodes), dtype=float)
     rng = default_rng() # gerar sem replacement
     # os pontos possuem coordenadas entre 0 e numeros de nos*4
-    nodes_coordinates: NDArrayInt = rng.choice(number_of_nodes*4, size=(number_of_nodes, 2), replace=False)
+    nodes_coordinates: NDArrayInt = rng.choice(max_coordinate, size =( number_of_nodes, 2), replace = False)
     #potencial de melhora aqui
     if dist == "euclidean":
         for i in range(number_of_nodes):
