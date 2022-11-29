@@ -6,21 +6,6 @@ import networkx as nx
 NDArrayInt = npt.NDArray[np.int_]
 NDArrayFloat = npt.NDArray[np.float_]
 
-from instance_generator import generate_tsp_instance
-
-NDArrayInt = npt.NDArray[np.int_]
-NDArrayFloat = npt.NDArray[np.float_]
-
-graph = np.array([[0, 3, 1, 5, 8], 
-                    [3, 0, 6, 7, 9], 
-                    [1, 6, 0, 4, 2], 
-                    [5, 7, 4, 0, 3], 
-                    [8, 9, 2, 3, 0]])
-
-graph = generate_tsp_instance(2, 100)
-
-import matplotlib.pyplot as plt
-
 def christofides(graph: NDArrayInt, src: np.int_ = 0):
     graph_nx = nx.from_numpy_matrix(graph)
     mst = nx.minimum_spanning_tree(graph_nx)

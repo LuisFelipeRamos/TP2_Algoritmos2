@@ -42,10 +42,3 @@ def generate_tsp_instance(size: int, max_coordinate: int) -> NDArrayInt:
             graph_manhattan[j, i] = distance
             
     return graph_euclidean, graph_manhattan
-
-
-""" import time
-s = time.time()
-i = generate_tsp_instance(10, 10)
-e = time.time()
-print(f"{e-s}") """
