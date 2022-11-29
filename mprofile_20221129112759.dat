@@ -1,0 +1,7 @@
+CMDLINE /home/grad/ccomp/21/luisfeliperamos/miniconda3/envs/tp2/bin/python3.9 main.py --dist euclidean --size 3 --alg twice_around_the_tree
+MEM 1.394531 1669732079.5533
+MEM 21.738281 1669732079.6536
+MEM 35.828125 1669732079.7538
+MEM 70.492188 1669732079.8541
+MEM 92.957031 1669732079.9544
+MEM 105.351562 1669732080.0547

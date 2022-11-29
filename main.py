@@ -42,25 +42,6 @@ def calculate_tsp(graph: NDArrayFloat, alg: str):
     
     return path, cost, end - start
 
-def arq():
-    graph = np.zeros((29, 29))
-
-    with open("teste.txt", "r") as file:
-        lines = file.readlines()
-    
-    edge_values = []
-    for line in lines:
-        edge_values.append(line.split(' '))
-
-    for i in range(len(edge_values)):
-        for j in range(len(edge_values[i])):
-            graph[i, j + i + 1] = int(edge_values[i][j])
-            graph[j + i + 1, i] = int(edge_values[i][j])
-
-    path_opt = [0,27,5,11,8,25,2,28,4,20,1,19,9,3,14,17,13,16,21,10,18,24,6,22,7,26,15,12,23,0]
-    cost_opt = utils.get_path_cost(path_opt, graph)
-    print(f"cost_opt: {cost_opt}")
-
 def get_data(alg: str):
 
     df: pd.DataFrame = pd.DataFrame(columns = ["size", "dist", "time", "path", "cost"])
@@ -82,7 +63,8 @@ def main():
 
     alg: str = ARGUMENTS.alg
 
-    get_data(alg)
+    g,_ = generate_tsp_instance(size, 5000)
+    path = christofides(g)
     
 
 if __name__ == "__main__":
