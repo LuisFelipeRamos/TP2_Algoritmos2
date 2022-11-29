@@ -21,27 +21,27 @@ def manhattan_distance(point_1: list[int], point_2: list[int]) -> int:
 # Os vértices são pontos no plano cartesiano. Os pesos entre os vértices será computado de duas formas diferentes:
 # Distância euclidiana e distância Manhatan
 
-def generate_tsp_instance(size: int, max_coordinate: int, dist: str = "euclidean") -> NDArrayInt:
+def generate_tsp_instance(size: int, max_coordinate: int) -> NDArrayInt:
 
     number_of_nodes: int = int(math.pow(2, size))
-    graph: NDArrayInt = np.zeros((number_of_nodes, number_of_nodes), dtype=float)
+    graph_euclidean: NDArrayFloat = np.zeros((number_of_nodes, number_of_nodes), dtype=float)
+    graph_manhattan: NDArrayInt = np.zeros((number_of_nodes, number_of_nodes), dtype=float)
     rng = default_rng() # gerar sem replacement
-    # os pontos possuem coordenadas entre 0 e numeros de nos*4
-    nodes_coordinates: NDArrayInt = rng.choice(max_coordinate, size =( number_of_nodes, 2), replace = False)
+    nodes_coordinates: NDArrayInt = rng.choice(max_coordinate, size = ( number_of_nodes, 2), replace = False)
     #potencial de melhora aqui
-    if dist == "euclidean":
-        for i in range(number_of_nodes):
-            for j in range(i+1, number_of_nodes):
-                distance: float = euclidean_distance(nodes_coordinates[i], nodes_coordinates[j])
-                graph[i, j] = distance
-                graph[j, i] = distance
-    else:
-        for i in range(number_of_nodes):
-            for j in range(i+1, number_of_nodes):
-                distance: float = manhattan_distance(nodes_coordinates[i], nodes_coordinates[j])
-                graph[i, j] = distance
-                graph[j, i] = distance
-    return graph
+    for i in range(number_of_nodes):
+        for j in range(i+1, number_of_nodes):
+            distance: float = euclidean_distance(nodes_coordinates[i], nodes_coordinates[j])
+            graph_euclidean[i, j] = distance
+            graph_euclidean[j, i] = distance
+
+    for i in range(number_of_nodes):
+        for j in range(i+1, number_of_nodes):
+            distance: float = manhattan_distance(nodes_coordinates[i], nodes_coordinates[j])
+            graph_manhattan[i, j] = distance
+            graph_manhattan[j, i] = distance
+            
+    return graph_euclidean, graph_manhattan
 
 
 """ import time
