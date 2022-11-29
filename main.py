@@ -65,7 +65,7 @@ def get_data(alg: str):
 
     df: pd.DataFrame = pd.DataFrame(columns = ["size", "dist", "time", "path", "cost"])
     for size in range(4, 11):
-        for i in range(10):
+        for i in range(50):
             graph_euclidean, graph_manhattan = generate_tsp_instance(size, 5000)
             path_euclidean, cost_euclidean, time_euclidean = calculate_tsp(graph_euclidean, alg)
             path_manhattan, cost_manhattan, time_manhattan = calculate_tsp(graph_manhattan, alg)

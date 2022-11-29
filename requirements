@@ -2,3 +2,4 @@ networkx
 igraph
 numpy
 matplotlib
+pandas
