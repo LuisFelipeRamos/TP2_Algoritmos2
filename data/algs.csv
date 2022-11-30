@@ -1399,3 +1399,14 @@ size,dist,time,cost,alg
 10,manhattan,3.8236,206946.0,twice-around-the-tree
 10,euclidean,3.5576,157659.9078,twice-around-the-tree
 10,manhattan,4.5462,201214.0,twice-around-the-tree
+4,euclidean,0.7066,22842.0,branch-and-bound
+4,euclidean,2.5554,13665.231,branch-and-bound
+4,manhattan,11.6028,17562.0,branch-and-bound
+4,euclidean,64.5927,17010.3462,branch-and-bound
+4,manhattan,130.223,21862.0,branch-and-bound
+4,euclidean,23.6107,20270.8322,branch-and-bound
+4,manhattan,3.0287,23362.0,branch-and-bound
+4,euclidean,47.3529,19169.452,branch-and-bound
+4,manhattan,138.3581,24360.0,branch-and-bound
+4,euclidean,460.3712,17047.4772,branch-and-bound
+4,manhattan,683.0441,20726.0,branch-and-bound
