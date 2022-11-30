@@ -42,18 +42,36 @@ def calculate_tsp(graph: NDArrayFloat, alg: str):
     
     return path, cost, end - start
 
+def data(graph):
+   
+    start = time.time()
+    tat_path = twice_around_the_tree(graph)
+    end = time.time()
+
+    tat_time = end-start
+    tat_cost = utils.get_path_cost(tat_path, graph)
+
+    start = time.time()
+    c_path = christofides(graph)
+    end = time.time()
+    
+    c_time = end-start
+    c_cost = utils.get_path_cost(c_path, graph)
+
+    return (tat_path, tat_cost, tat_time), (c_path, c_cost, c_time)
+
 def get_data(alg: str):
 
-    df: pd.DataFrame = pd.DataFrame(columns = ["size", "dist", "time", "path", "cost"])
+    df: pd.DataFrame = pd.DataFrame(columns = ["size", "dist", "alg", "time", "path", "cost"])
     for size in range(4, 11):
         for i in range(50):
             graph_euclidean, graph_manhattan = generate_tsp_instance(size, 5000)
-            path_euclidean, cost_euclidean, time_euclidean = calculate_tsp(graph_euclidean, alg)
-            path_manhattan, cost_manhattan, time_manhattan = calculate_tsp(graph_manhattan, alg)
-            df = pd.concat([df, pd.Series({"size": size, "dist": "euclidean", "time": round(time_euclidean, 4), "path": path_euclidean, "cost": round(cost_euclidean, 4)}).to_frame().T], ignore_index  = True)
+            (petat, cetat, tetat), (pecr, cecr, tecr) = data(graph_euclidean)
+            (petat, cetat, tetat), (pecr, cecr, tecr) = data(graph_manhattan)
+            df = pd.concat([df, pd.Series({"size": size, "dist": "euclidean", "alg" : "twice-around-the-tree", "time": round(tetat, 4), "path": petat, "cost": round(cost_euclidean, 4)}).to_frame().T], ignore_index  = True)
             df = pd.concat([df, pd.Series({"size": size, "dist": "manhattan", "time": round(time_manhattan, 4), "path": path_manhattan, "cost": round(cost_manhattan, 4)}).to_frame().T], ignore_index  = True)
 
-    df.to_csv(f"data/{alg}.csv", index = False)
+    df.to_csv(f"data/final.csv", index = False)
 
 def main():
 
