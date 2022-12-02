@@ -53,6 +53,7 @@ def main():
     g,_ = generate_tsp_instance(size, 5000)
     path = branch_and_bound_tsp(g)
     
+    
 
 if __name__ == "__main__":
     main()
