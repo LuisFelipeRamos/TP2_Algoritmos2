@@ -51,7 +51,7 @@ def main():
     alg: str = ARGUMENTS.alg
 
     g,_ = generate_tsp_instance(size, 5000)
-    path = christofides(g)
+    path = branch_and_bound_tsp(g)
     
 
 if __name__ == "__main__":
