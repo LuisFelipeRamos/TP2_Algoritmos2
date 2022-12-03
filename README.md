@@ -29,13 +29,13 @@ Para executar o código, deve-se estar no diretório raiz do projeto, e utilizar
 
 `python main.py`
 
-seguido dos parâmetros d elinha de comando, descritos a seguir.
+seguido dos parâmetros de linha de comando, descritos a seguir.
 
 - --dist : Tipo de distância utilizado no cálculo entre os pontos da instância gerada
     - Opções: `euclidean` ou `manhattan`
 - --size : Tamanho da instância que deve ser gerada (potência de 2 utilizada)
     - Opções: qualquer valor pode ser passado, mas o trabalho foi feito pensando em valores de 4 a 10
-- --alg : Qual algoritmos deve ser utilizado para o cálculo
+- --alg : Qual algoritmo deve ser utilizado para o cálculo
     - Opções: `branch-and-bound`, `twice-around-the-tree` ou `christofides`
 
 Exemplo de execução:
@@ -44,5 +44,5 @@ Exemplo de execução:
 
 ## Observações:
 
-O algoritmo de branch-and-bound é exaustivo e provavelmentenão será interessante utilizá-lo com instâncias maiores do que 2⁴. Tente rodar essas instâncias por sua própria cnta e risco.
+O algoritmo de branch-and-bound é exaustivo e provavelmente não será interessante utilizá-lo com instâncias maiores do que 2⁴. Tente rodar essas instâncias por sua própria conta e risco. 
 
