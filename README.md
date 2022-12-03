@@ -6,7 +6,7 @@ Este arquivo tem o propósito de explicar a organização do projeto.
 
 O projeto é dividido em cinco arquivos principais, osquais contêm as implementações dos algoritmos propostos no enunciado do trabalho, assim como algumas funções auxiliares úteis para as análises e documentações.
 
-Além disso, existem três diretórios principais, `docs`, `data` e `spec`. `docs` contém este arquivo de diretrizes e uma pasta com um relatório em LaTeX (com um subdiretório para imagens), `data` contêm os conjuntos de dados coletados na internet para a reaização de testes assim como o local de onde foram adquiridos e `spec` contêm a especificação do trabalho.
+Além disso, existem três diretórios principais, `docs`, `data` e `spec`. `docs` contém uma pasta com um relatório em LaTeX, assim como um subdiretório para imagens e um para as referências utilizadas no artigo, `data` contêm os conjuntos de dados coletados para a realização de testes e `spec` contêm a especificação do trabalho.
 
 # Práticas de Código
 
