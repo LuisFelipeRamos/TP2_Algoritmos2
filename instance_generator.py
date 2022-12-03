@@ -17,18 +17,17 @@ def manhattan_distance(point_1: list[int], point_2: list[int]) -> int:
 
 # Gera instância para testes de execução dos algoritmos para o Caixeiro Viajante
 # Recebe um inteiro size. O número de vértices da instância gerada será 2**size
-# Recebe os inteiros que dizem quais os limites inferior e superior dos pontos
+# Recebe o inteiro que indica acoordenada máxima que os pontos podem ter, por padrão esse valor é 5000
 # Os vértices são pontos no plano cartesiano. Os pesos entre os vértices será computado de duas formas diferentes:
 # Distância euclidiana e distância Manhatan
 
-def generate_tsp_instance(size: int, max_coordinate: int) -> NDArrayInt:
+def generate_tsp_instance(size: int, max_coordinate: int = 5000) -> NDArrayInt:
 
     number_of_nodes: int = int(math.pow(2, size))
     graph_euclidean: NDArrayFloat = np.zeros((number_of_nodes, number_of_nodes), dtype=float)
     graph_manhattan: NDArrayInt = np.zeros((number_of_nodes, number_of_nodes), dtype=float)
-    rng = default_rng() # gerar sem replacement
+    rng = default_rng()
     nodes_coordinates: NDArrayInt = rng.choice(max_coordinate, size = ( number_of_nodes, 2), replace = False)
-    #potencial de melhora aqui
     for i in range(number_of_nodes):
         for j in range(i+1, number_of_nodes):
             distance: float = euclidean_distance(nodes_coordinates[i], nodes_coordinates[j])

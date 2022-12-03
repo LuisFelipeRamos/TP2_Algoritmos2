@@ -3,13 +3,11 @@ from __future__ import annotations
 import heapq
 import numpy as np
 import numpy.typing as npt
-import cProfile
-
-from instance_generator import generate_tsp_instance
 
 NDArrayInt = npt.NDArray[np.int_]
 NDArrayFloat = npt.NDArray[np.float_]
 
+# Classe auxiliar que representa cadanó na árvore de buscas
 class Node:
 
     def __init__(self, bound: np.float_, cost: np.float_, path: NDArrayInt, counted_edges: NDArrayInt, graph_size: np.int_):
@@ -27,6 +25,7 @@ class Node:
             return self.bound < other.bound
         return self.cost < other.cost
 
+# Função auxiliar para calcular a estimativa do cmainho hamiltoniano mínimo do grafo sem contabilizar nenhuma aresta específica.
 def graph_bound(graph: NDArrayInt) -> np.float_:
     total: int = 0
     counted_edges: NDArrayInt = np.zeros((len(graph), 3), dtype = np.int_)
@@ -41,6 +40,7 @@ def graph_bound(graph: NDArrayInt) -> np.float_:
         total += a + b
     return total/2, counted_edges
 
+# Função de estimativa que atualiza a estimativa de custo dos caminhos hamiltonianos no grafo conforme são adicionadas arestas ao caminho.
 def bound(prev_bound: np.float_, prev_node: np.int_, new_node: np.int_, counted_edges: NDArrayInt, graph: NDArrayFloat) -> np.float_:
 
     total: np.float_ = prev_bound * 2
