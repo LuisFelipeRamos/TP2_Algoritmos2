@@ -57,7 +57,22 @@ def main():
         path, cost, time = calculate_tsp(graph_manhattan, alg)
     else:
         print("Não conheço essa distância!")
-    print(f"A execução do algoritmo {alg} demorou aproximadamente {round(time, 3)} segundos, e foi encontrado o caminho \n {path} \nque possui um custo total de aproximadamente {round(cost, 2)}")
-    
+    print(f"Algoritmo executado: {alg}")
+    print()
+    print(f"Tempo de execução: {round(time, 3)} segundos")
+    print()
+    minimized_path: str = "-".join(str(v) for v in path)
+    if size > 4:
+        first_half = " - ".join(str(v) for v in path[:9])
+        second_half = " - ".join(str(v) for v in path[-8:])
+        minimized_path = first_half + " ... " + second_half
+        print(f"O ciclo hamiltoniano encontrado foi {minimized_path}")
+    else:
+        path = " - ".join(str(v) for v in path)
+        print(f"O ciclo hamiltoniano encontrado foi {path}")
+    print()
+    print(f"O custo total de percorrer o ciclo foi de {round(cost, 2)}")
+    print()
+
 if __name__ == "__main__":
     main()
